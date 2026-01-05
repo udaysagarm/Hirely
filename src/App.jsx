@@ -18,7 +18,7 @@ import { LoadingProvider } from "./context/LoadingContext";
 import { AuthProvider } from "./context/AuthContext";
 
 // Layout with NavBar for private/authenticated pages
-function PrivateLayout({ theme, setTheme }) {
+function PrivateLayout({ theme }) {
   return (
     <>
       <NavBar theme={theme} />
@@ -56,7 +56,7 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             {/* Private Pages - Accessible with NavBar and requiring login state */}
-            <Route element={<PrivateLayout theme={theme} setTheme={setTheme} />}>
+            <Route element={<PrivateLayout theme={theme} />}>
               <Route path="/user/home" element={<UserHome />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/post-job" element={<PostJob />} />

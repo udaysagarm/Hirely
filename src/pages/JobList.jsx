@@ -10,7 +10,7 @@ export default function JobList() {
   const { showLoading, hideLoading } = useLoading();
   const { token, isLoggedIn, currentUser } = useAuth();
 
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     category: '',
     location: '',
     minPay: '',
@@ -25,7 +25,7 @@ export default function JobList() {
       const queryString = new URLSearchParams(filters).toString();
       const response = await fetch(`/api/jobs?${queryString}`, {
         headers: {
-            ...(isLoggedIn && token && { 'Authorization': `Bearer ${token}` })
+          ...(isLoggedIn && token && { 'Authorization': `Bearer ${token}` })
         }
       });
       const data = await response.json();
@@ -78,10 +78,10 @@ export default function JobList() {
         setJobs(prevJobs => prevJobs.map(job =>
           job.id === jobId
             ? {
-                ...job,
-                interested_count: data.interestedCount,
-                is_interested_by_current_user: data.isInterestedByCurrentUser
-              }
+              ...job,
+              interested_count: data.interestedCount,
+              is_interested_by_current_user: data.isInterestedByCurrentUser
+            }
             : job
         ));
       } else {
@@ -101,10 +101,7 @@ export default function JobList() {
     fetchJobs();
   }, [filters, isLoggedIn, token, currentUser]);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
+
 
   return (
     <div className="p-6">

@@ -1,13 +1,13 @@
 // src/pages/Profile.jsx
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLoading } from "../context/LoadingContext";
 import { Star } from 'lucide-react';
 
 const Profile = () => {
   const { currentUser, token, login } = useAuth();
-  const navigate = useNavigate();
+
   const { showLoading, hideLoading } = useLoading();
 
   const [profile, setProfile] = useState(currentUser || {});
@@ -31,9 +31,9 @@ const Profile = () => {
         const data = await response.json();
         if (response.ok) {
           // Update AuthContext with latest user data (including rating info)
-          login(data, token); 
+          login(data, token);
           // Set profile state to this latest data for immediate display
-          setProfile(data); 
+          setProfile(data);
           setAvatar(data.avatar_url || DEFAULT_AVATAR_URL);
         } else {
           console.error("Failed to fetch current user profile for refresh:", data.message);
@@ -48,7 +48,7 @@ const Profile = () => {
       setProfile(currentUser);
       setAvatar(currentUser.avatar_url || DEFAULT_AVATAR_URL);
       // Fetch fresh data on component mount or currentUser change to get latest ratings
-      fetchCurrentUserProfile(); 
+      fetchCurrentUserProfile();
     }
   }, [currentUser?.id, token, login]); // Re-run if currentUser.id or token changes
 
@@ -77,7 +77,7 @@ const Profile = () => {
     if (!profile.phone || !/^\d{10}$/.test(profile.phone)) newErrors.phone = "Phone must be 10 digits";
     if (!profile.location?.trim()) newErrors.location = "Location required";
     if (profile.preferredDistance !== undefined && (isNaN(profile.preferredDistance) || profile.preferredDistance < 0)) {
-        newErrors.preferredDistance = "Preferred distance must be a non-negative number.";
+      newErrors.preferredDistance = "Preferred distance must be a non-negative number.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -186,26 +186,26 @@ const Profile = () => {
 
         {/* API Error Display */}
         {apiError && (
-            <p className="text-red-600 text-sm mb-4 text-center">{apiError}</p>
+          <p className="text-red-600 text-sm mb-4 text-center">{apiError}</p>
         )}
 
         {/* Display Rating (Now functional with currentUser data) */}
         <div className="flex items-center mb-4">
-            {(profile.average_rating === null || profile.average_rating === 0) ? (
-                <span className="text-sm text-gray-500 dark:text-gray-400">No ratings yet.</span>
-            ) : (
-                <>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
-                            key={i}
-                            className={`w-6 h-6 ${i <= parseFloat(profile.average_rating) ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"}`}
-                        />
-                    ))}
-                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                        ({parseFloat(profile.average_rating).toFixed(1)} / 5) from {profile.total_ratings_count || 0} ratings
-                    </span>
-                </>
-            )}
+          {(profile.average_rating === null || profile.average_rating === 0) ? (
+            <span className="text-sm text-gray-500 dark:text-gray-400">No ratings yet.</span>
+          ) : (
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star
+                  key={i}
+                  className={`w-6 h-6 ${i <= parseFloat(profile.average_rating) ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"}`}
+                />
+              ))}
+              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                ({parseFloat(profile.average_rating).toFixed(1)} / 5) from {profile.total_ratings_count || 0} ratings
+              </span>
+            </>
+          )}
         </div>
 
         {/* Editable Fields */}
@@ -315,22 +315,22 @@ const Profile = () => {
 
           <div className="text-center">
             <div className="flex justify-center mb-1">
-                {(profile.average_rating === null || profile.average_rating === 0) ? (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">No ratings yet.</span>
-                ) : (
-                    <>
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <Star
-                                key={i}
-                                className={`w-6 h-6 ${i <= parseFloat(profile.average_rating) ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"}`}
-                            />
-                        ))}
-                    </>
-                )}
+              {(profile.average_rating === null || profile.average_rating === 0) ? (
+                <span className="text-sm text-gray-500 dark:text-gray-400">No ratings yet.</span>
+              ) : (
+                <>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star
+                      key={i}
+                      className={`w-6 h-6 ${i <= parseFloat(profile.average_rating) ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"}`}
+                    />
+                  ))}
+                </>
+              )}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-                Rating: {(parseFloat(profile.average_rating) || 0).toFixed(1)} / 5
-                {profile.total_ratings_count > 0 && ` (${profile.total_ratings_count} ratings)`}
+              Rating: {(parseFloat(profile.average_rating) || 0).toFixed(1)} / 5
+              {profile.total_ratings_count > 0 && ` (${profile.total_ratings_count} ratings)`}
             </p>
           </div>
 

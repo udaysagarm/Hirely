@@ -26,7 +26,7 @@ app.use(cors({
 }));
 
 // Explicitly handle OPTIONS requests for all paths.
-app.options('*', cors()); 
+app.options('*', cors());
 
 // Parse JSON request bodies
 app.use(express.json());
@@ -47,7 +47,7 @@ function authenticateToken(req, res, next) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) {
             console.error('JWT verification error:', err.message);
-            req.user = null; 
+            req.user = null;
             return next();
         }
         req.user = user.user; // Attach user payload to request (contains id, email, role)
@@ -266,7 +266,7 @@ app.post('/api/jobs', ensureAuthenticated, async (req, res) => {
 app.get('/api/jobs', authenticateToken, async (req, res) => {
     console.log("Route hit: GET /api/jobs");
     const { category, location, minPay, maxPay, keywords } = req.query;
-    const currentUserId = req.user ? req.user.id : null; 
+    const currentUserId = req.user ? req.user.id : null;
 
     let query = `
         SELECT
@@ -320,7 +320,7 @@ app.get('/api/jobs', authenticateToken, async (req, res) => {
 app.get('/api/jobs/:id', authenticateToken, async (req, res) => { // Added authenticateToken to get req.user
     console.log("Route hit: GET /api/jobs/:id");
     const jobId = Number(req.params.id);
-    const currentUserId = req.user ? req.user.id : null; 
+    const currentUserId = req.user ? req.user.id : null;
 
     if (!jobId || isNaN(jobId)) {
         return res.status(400).json({ message: 'Invalid Job ID.' });
@@ -339,7 +339,7 @@ app.get('/api/jobs/:id', authenticateToken, async (req, res) => { // Added authe
             FROM jobs j
             JOIN users u ON j.posted_by_user_id = u.id
             WHERE j.id = $1 AND j.deleted_at IS NULL`;
-        
+
         const jobResult = await pool.query(publicJobQuery, [jobId]);
 
         if (jobResult.rows.length === 0) {
@@ -353,14 +353,14 @@ app.get('/api/jobs/:id', authenticateToken, async (req, res) => { // Added authe
                 FROM jobs
                 WHERE id = $1`;
             const privateResult = await pool.query(privateDetailsQuery, [jobId]);
-            
+
             if (privateResult.rows.length > 0) {
                 jobData.private_details = privateResult.rows[0].private_details;
                 jobData.private_image_urls = privateResult.rows[0].private_image_urls;
             }
         }
-        
-        if (currentUserId) { 
+
+        if (currentUserId) {
             const assignedDetailsQuery = `
                 SELECT 
                     assigned_location, assigned_details, assigned_image_urls
@@ -498,7 +498,7 @@ app.get('/api/users/:email', async (req, res) => {
 app.get('/api/users/id/:id', authenticateToken, async (req, res) => { // Added authenticateToken
     console.log("Route hit: GET /api/users/id/:id");
     const userId = Number(req.params.id);
-    const currentUserId = req.user ? req.user.id : null; 
+    const currentUserId = req.user ? req.user.id : null;
 
     try {
         const user = await pool.query(
@@ -553,7 +553,7 @@ app.post('/api/users/:userId/rate', ensureAuthenticated, async (req, res) => {
             [ratedUserId]
         );
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: 'Rating submitted successfully!',
             average_rating: parseFloat(updatedStats.rows[0].average_rating),
             total_ratings_count: parseInt(updatedStats.rows[0].total_ratings_count)
@@ -610,7 +610,7 @@ app.post('/api/messages', ensureAuthenticated, async (req, res) => {
              RETURNING id, sender_id, receiver_id, content, sent_at, is_read`,
             [senderId, receiverId, content, jobId || null]
         );
-        res.status(201).json({ message: 'Message sent successfully!', message: newMessage.rows[0] });
+        res.status(201).json({ message: 'Message sent successfully!', data: newMessage.rows[0] });
     } catch (err) {
         console.error('Error sending message:', err);
         res.status(500).send('Server Error sending message.');
@@ -991,7 +991,7 @@ app.post('/api/jobs/:jobId/assign', ensureAuthenticated, async (req, res) => {
             return res.status(400).json({ message: 'Job is already filled and cannot be assigned.' });
         }
 
-        const applicationStatus = 'assigned'; 
+        const applicationStatus = 'assigned';
 
         const result = await pool.query(
             `INSERT INTO job_applications (job_id, applicant_user_id, status, assigned_location, assigned_details, assigned_image_urls, assigned_at)
@@ -1040,7 +1040,7 @@ app.delete('/api/jobs/:jobId/assign/:assignedUserId', ensureAuthenticated, async
         if (job.rows.length === 0) {
             return res.status(404).json({ message: 'Job not found.' });
         }
-        
+
         const isPoster = (job.rows[0].posted_by_user_id === authenticatedUserId);
         const isAssignedWorkerCancellingSelf = (assignedUserId === authenticatedUserId);
 

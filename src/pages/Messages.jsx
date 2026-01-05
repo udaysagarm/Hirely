@@ -15,7 +15,7 @@ export default function Messages() {
 
   // --- FEATURE UNDER DEVELOPMENT FLAG ---
   const isUnderDevelopment = true; // Set to TRUE to show "Under Development" message
-                                  // Change to false when ready to enable full messaging
+  // Change to false when ready to enable full messaging
   // ------------------------------------
 
   const [conversations, setConversations] = useState([]);
@@ -33,40 +33,40 @@ export default function Messages() {
   const findAndSetActiveChat = (participantId, convs) => {
     const targetConv = convs.find(conv => conv.participant_id === Number(participantId));
     if (targetConv) {
-        setActiveChat(targetConv);
+      setActiveChat(targetConv);
     } else {
-        const fetchNewParticipant = async () => {
-            try {
-                showLoading("Finding user to chat with...");
-                const response = await fetch(`/api/users/id/${participantId}`); // Fetch user by ID
-                const userData = await response.json();
-                if (response.ok) {
-                    setActiveChat({
-                        participant_id: userData.id,
-                        participant_name: userData.name,
-                        participant_avatar: userData.avatar_url,
-                        last_message_content: "New chat initiated.", // Placeholder
-                        last_message_sent_at: new Date().toISOString(),
-                        unread_count: 0
-                    });
-                    setConversations(prev => [...prev, {
-                        participant_id: userData.id,
-                        participant_name: userData.name,
-                        participant_avatar: userData.avatar_url,
-                        last_message_content: "New chat initiated.",
-                        last_message_sent_at: new Date().toISOString(),
-                        unread_count: 0
-                    }]);
-                } else {
-                    setApiError(userData.message || "Failed to find user for new chat.");
-                }
-            } catch (err) {
-                setApiError("Network error finding user for chat.");
-            } finally {
-                hideLoading();
-            }
-        };
-        fetchNewParticipant();
+      const fetchNewParticipant = async () => {
+        try {
+          showLoading("Finding user to chat with...");
+          const response = await fetch(`/api/users/id/${participantId}`); // Fetch user by ID
+          const userData = await response.json();
+          if (response.ok) {
+            setActiveChat({
+              participant_id: userData.id,
+              participant_name: userData.name,
+              participant_avatar: userData.avatar_url,
+              last_message_content: "New chat initiated.", // Placeholder
+              last_message_sent_at: new Date().toISOString(),
+              unread_count: 0
+            });
+            setConversations(prev => [...prev, {
+              participant_id: userData.id,
+              participant_name: userData.name,
+              participant_avatar: userData.avatar_url,
+              last_message_content: "New chat initiated.",
+              last_message_sent_at: new Date().toISOString(),
+              unread_count: 0
+            }]);
+          } else {
+            setApiError(userData.message || "Failed to find user for new chat.");
+          }
+        } catch {
+          setApiError("Network error finding user for chat.");
+        } finally {
+          hideLoading();
+        }
+      };
+      fetchNewParticipant();
     }
   };
 
@@ -79,10 +79,10 @@ export default function Messages() {
       hideLoading();
       return;
     }
-    
+
     if (!isLoggedIn || !token || !currentUser) {
-        setConversations([]);
-        return;
+      setConversations([]);
+      return;
     }
 
     const fetchConversations = async () => {
@@ -101,7 +101,7 @@ export default function Messages() {
           const queryParams = new URLSearchParams(location.search);
           const participantIdFromUrl = queryParams.get('participantId');
           if (participantIdFromUrl && !activeChat) {
-              findAndSetActiveChat(participantIdFromUrl, data);
+            findAndSetActiveChat(participantIdFromUrl, data);
           }
         } else {
           setApiError(data.message || "Failed to load conversations.");
@@ -238,7 +238,7 @@ export default function Messages() {
             We're working hard to bring you a seamless messaging experience!
           </p>
           {apiError && (
-              <p className="text-red-500 text-sm mt-4">{apiError}</p>
+            <p className="text-red-500 text-sm mt-4">{apiError}</p>
           )}
         </div>
       </div>
@@ -256,28 +256,28 @@ export default function Messages() {
         {!activeChat ? (
           <div className="space-y-4">
             {conversations.length === 0 && !apiError ? (
-                <p className="text-gray-500 dark:text-gray-400 text-center">No conversations yet.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center">No conversations yet.</p>
             ) : (
-                conversations.map((conv) => (
+              conversations.map((conv) => (
                 <div
-                    key={conv.participant_id}
-                    onClick={() => setActiveChat(conv)}
-                    className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow cursor-pointer hover:shadow-md transition dark:border dark:border-gray-700"
+                  key={conv.participant_id}
+                  onClick={() => setActiveChat(conv)}
+                  className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow cursor-pointer hover:shadow-md transition dark:border dark:border-gray-700"
                 >
-                    <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4">
                     <img src={conv.participant_avatar || DEFAULT_AVATAR_URL} className="w-12 h-12 rounded-full object-cover" alt="avatar" />
                     <div>
-                        <p className="font-semibold text-gray-800 dark:text-gray-200">{conv.participant_name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{conv.last_message_content}</p>
-                        {conv.unread_count > 0 && (
-                            <span className="text-xs bg-blue-500 text-white rounded-full px-2 py-0.5 ml-2">
-                                {conv.unread_count} New
-                            </span>
-                        )}
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">{conv.participant_name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{conv.last_message_content}</p>
+                      {conv.unread_count > 0 && (
+                        <span className="text-xs bg-blue-500 text-white rounded-full px-2 py-0.5 ml-2">
+                          {conv.unread_count} New
+                        </span>
+                      )}
                     </div>
-                    </div>
+                  </div>
                 </div>
-                ))
+              ))
             )}
           </div>
         ) : (
@@ -297,11 +297,10 @@ export default function Messages() {
               {messages.map((msg, idx) => (
                 <div
                   key={msg.id || idx}
-                  className={`p-2 px-4 rounded-xl max-w-xs ${
-                    msg.sender_id === currentUser.id
-                      ? "bg-blue-100 text-blue-800 self-end ml-auto dark:bg-blue-900 dark:text-blue-200"
-                      : "bg-gray-100 text-gray-800 self-start dark:bg-gray-700 dark:text-gray-100"
-                  }`}
+                  className={`p-2 px-4 rounded-xl max-w-xs ${msg.sender_id === currentUser.id
+                    ? "bg-blue-100 text-blue-800 self-end ml-auto dark:bg-blue-900 dark:text-blue-200"
+                    : "bg-gray-100 text-gray-800 self-start dark:bg-gray-700 dark:text-gray-100"
+                    }`}
                 >
                   {msg.content}
                   <span className="block text-right text-xs text-gray-400 dark:text-gray-500 mt-1">

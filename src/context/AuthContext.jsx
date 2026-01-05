@@ -1,5 +1,5 @@
 // src/context/AuthContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 // import { useLoading } from './LoadingContext'; // Commented out as not directly used here
 
 const AuthContext = createContext(null);
