@@ -10,6 +10,8 @@ export default function JobList() {
   const { showLoading, hideLoading } = useLoading();
   const { token, isLoggedIn, currentUser } = useAuth();
 
+  const [processingJobIds, setProcessingJobIds] = useState(new Set()); // Track which jobs are being processed
+
   const [filters] = useState({
     category: '',
     location: '',
@@ -55,7 +57,12 @@ export default function JobList() {
     console.log(`handleInterestClick called for Job ID: ${jobId}`);
     console.log(`isCurrentlyInterested (passed from JobCard): ${isCurrentlyInterested}`);
 
-    showLoading(isCurrentlyInterested ? "Removing interest..." : "Recording interest...");
+    // showLoading(isCurrentlyInterested ? "Removing interest..." : "Recording interest..."); // REMOVED GLOBAL LOADING
+    setProcessingJobIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(jobId);
+      return newSet;
+    });
     setApiError("");
 
     try {
@@ -92,7 +99,12 @@ export default function JobList() {
       console.error("Network error recording/removing interest:", error);
       setApiError("Network error. Could not perform interest action.");
     } finally {
-      hideLoading();
+      // hideLoading(); // REMOVED GLOBAL LOADING
+      setProcessingJobIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(jobId);
+        return newSet;
+      });
     }
   };
 
@@ -111,7 +123,14 @@ export default function JobList() {
         <p className="text-gray-500 dark:text-gray-400">No jobs posted yet.</p>
       ) : (
         <div className="space-y-6">
-          {jobs.map((job) => <JobCard key={job.id} job={job} onInterestClick={handleInterestClick} />)}
+          {jobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onInterestClick={handleInterestClick}
+              isProcessing={processingJobIds.has(job.id)}
+            />
+          ))}
         </div>
       )}
     </div>

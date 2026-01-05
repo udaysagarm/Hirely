@@ -3,15 +3,15 @@ import React from 'react';
 import { Star, ThumbsUp, XCircle } from 'lucide-react'; // Import XCircle for Cancel
 import { Link } from 'react-router-dom';
 
-const JobCard = ({ job, onInterestClick, onCancelJob }) => { // Added onCancelJob prop
+const JobCard = ({ job, onInterestClick, onCancelJob, isProcessing }) => { // Added isProcessing prop
   const DEFAULT_AVATAR_URL = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
   const interestedCount = parseInt(job.interested_count || 0, 10);
-  const isInterested = job.is_interested_by_current_user === true; 
+  const isInterested = job.is_interested_by_current_user === true;
   const isJobFilled = job.status === 'filled';
   const isAssignedToMe = job.job_type === 'assigned_to_me'; // From backend my-jobs endpoint
   // job.has_any_assignment comes from backend on GET /api/jobs (public view) or my-jobs (posted view)
-  const hasAnyAssignment = job.has_any_assignment === true; 
+  const hasAnyAssignment = job.has_any_assignment === true;
 
   // Helper to determine the status text and color
   const getStatusDisplay = () => {
@@ -31,7 +31,7 @@ const JobCard = ({ job, onInterestClick, onCancelJob }) => { // Added onCancelJo
       statusText = "OPEN"; // Job is open, and no one is assigned
       statusColorClass = "text-green-600";
     }
-    
+
     return { statusText, statusColorClass };
   };
 
@@ -39,14 +39,6 @@ const JobCard = ({ job, onInterestClick, onCancelJob }) => { // Added onCancelJo
 
   // Handle click for Interest/Uninterest button (only for non-assigned jobs)
   const handleInterestButtonClick = () => {
-    if (isInterested) { // If currently interested, it's an uninterest action
-      const confirmUninterest = window.confirm(
-        "Are you sure you want to uninterest from this job?"
-      );
-      if (!confirmUninterest) {
-        return; // User cancelled
-      }
-    }
     onInterestClick(job.id, isInterested);
   };
 
@@ -114,14 +106,14 @@ const JobCard = ({ job, onInterestClick, onCancelJob }) => { // Added onCancelJo
           {job.end_time && `Ends: ${new Date(job.end_time).toLocaleString()}`}
         </p>
       )}
-      
+
       {/* Job Status Tag/Label */}
       <p className="mt-2 text-sm font-semibold">
         Status: <span className={statusColorClass}>{statusText}</span>
         {isJobFilled && (
-            <span className="ml-2 px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 text-xs font-bold">
-                JOB FILLED
-            </span>
+          <span className="ml-2 px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 text-xs font-bold">
+            JOB FILLED
+          </span>
         )}
       </p>
 
@@ -167,14 +159,18 @@ const JobCard = ({ job, onInterestClick, onCancelJob }) => { // Added onCancelJo
             id={`interest-btn-${job.id}`}
             name={`interest-btn-${job.id}`}
             onClick={handleInterestButtonClick} // Call the original handler
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition shadow-md ${
-              isInterested
-                ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
-                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full transition shadow-md ${isInterested
+              ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+              : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+              } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={isProcessing}
             aria-label={isInterested ? `Uninterested in ${job.title}` : `Interested in ${job.title}`}
           >
-            <ThumbsUp className={`w-4 h-4 ${isInterested ? "text-white" : "text-white"}`} />
+            {isProcessing ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+            ) : (
+              <ThumbsUp className={`w-4 h-4 ${isInterested ? "text-white" : "text-white"}`} />
+            )}
             {isInterested ? "Uninterested" : "Interested"} ({interestedCount})
           </button>
         )}

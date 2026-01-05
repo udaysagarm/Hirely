@@ -276,11 +276,17 @@ app.get('/api/jobs', authenticateToken, async (req, res) => {
             u.email as posted_by_email,
             u.phone as posted_by_phone,
             (SELECT COUNT(*) FROM job_interests WHERE job_id = j.id) AS interested_count,
-            EXISTS(SELECT 1 FROM job_interests WHERE job_id = j.id AND user_id = COALESCE($1::integer, 0)) AS is_interested_by_current_user
+            EXISTS(SELECT 1 FROM job_interests WHERE job_id = j.id AND user_id = COALESCE($1::integer, 0)) AS is_interested_by_current_user,
+            EXISTS(SELECT 1 FROM job_applications WHERE job_id = j.id AND status = 'assigned') AS has_any_assignment
         FROM jobs j
         JOIN users u ON j.posted_by_user_id = u.id
         LEFT JOIN job_interests ji ON j.id = ji.job_id
         WHERE 1=1 AND j.deleted_at IS NULL
+        AND (
+            (j.status != 'filled' AND j.end_time > NOW())
+            OR j.posted_by_user_id = $1
+            OR EXISTS (SELECT 1 FROM job_applications ja WHERE ja.job_id = j.id AND ja.applicant_user_id = $1 AND ja.status = 'assigned')
+        )
     `;
     const params = [currentUserId];
     let paramIndex = 2;
