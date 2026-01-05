@@ -1,0 +1,17 @@
+hirely/server/
+├── node_modules/
+├── .env
+├── package.json
+├── app.js             <-- This becomes your new main entry point
+├── db/
+│   └── index.js       <-- PostgreSQL connection pool setup
+├── middleware/
+│   └── authMiddleware.js <-- Authentication middleware (authenticateToken, ensureAuthenticated)
+├── routes/
+│   ├── index.js       <-- Optional: Central router to combine all other routes
+│   ├── authRoutes.js  <-- User registration and login (if separate from main user management)
+│   ├── userRoutes.js  <-- User profile management, ratings, reports
+│   ├── jobRoutes.js   <-- Job posting, listing, details, interest, assignment, delete
+│   └── messageRoutes.js <-- Messaging functionalities
+└── utils/             <-- Optional: For utility functions like geocoding, validation helpers
+    └── geocoding.js

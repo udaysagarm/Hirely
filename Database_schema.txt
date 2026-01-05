@@ -1,0 +1,91 @@
+-- Users Table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    location VARCHAR(255) NOT NULL,
+    latitude DECIMAL(10, 7), -- NEW: For geolocation
+    longitude DECIMAL(10, 7), -- NEW: For geolocation
+    preferred_distance INTEGER DEFAULT 0,
+    role VARCHAR(50) DEFAULT 'job_seeker' CHECK (role IN ('job_seeker', 'employer', 'admin')),
+    avatar_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    -- Aggregated Rating fields (denormalized for quick access)
+    average_rating DECIMAL(2,1) DEFAULT 0.0, -- Average rating 1.0-5.0
+    total_ratings_count INTEGER DEFAULT 0, -- Total number of ratings received
+    total_jobs_worked INTEGER DEFAULT 0,
+    total_hours_worked DECIMAL(10,2) DEFAULT 0.0
+);
+
+-- Jobs Table (Job Postings)
+CREATE TABLE jobs (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    pay NUMERIC(10,2) NOT NULL, -- Increased precision
+    pay_type VARCHAR(50) NOT NULL CHECK (pay_type IN ('hourly', 'flat', 'negotiable')),
+    category VARCHAR(100) NOT NULL,
+    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    total_hours DECIMAL(10,2) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    latitude DECIMAL(10, 7), -- NEW: For job location
+    longitude DECIMAL(10, 7), -- NEW: For job location
+    posted_by_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'assigned', 'filled', 'completed', 'cancelled')),
+    images TEXT[], -- Array of public image URLs
+    private_details TEXT, -- NEW: Private notes, only visible when assigned/viewed by poster
+    private_image_urls TEXT[], -- NEW: Private image URLs
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL -- NEW: Soft delete timestamp
+);
+
+-- Job Interests (Users who clicked 'Interested')
+CREATE TABLE job_interests (
+    id SERIAL PRIMARY KEY,
+    job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE (job_id, user_id) -- A user can express interest in a job only once
+);
+
+-- Job Applications / Assignments (Specific assignments)
+CREATE TABLE job_applications (
+    id SERIAL PRIMARY KEY,
+    job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    applicant_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('interested', 'assigned', 'rejected', 'completed', 'cancelled_by_worker', 'job_deleted')), -- Expanded statuses
+    assigned_location VARCHAR(255), -- Specific location shared upon assignment
+    assigned_details TEXT, -- Specific details shared upon assignment
+    assigned_image_urls TEXT[], -- Specific images shared upon assignment
+    assigned_at TIMESTAMP WITH TIME ZONE, -- When the job was assigned
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), -- Added updated_at
+    UNIQUE (job_id, applicant_user_id) -- A user can have only one application/assignment per job
+);
+
+-- User Ratings (Employer rates worker, or vice-versa)
+CREATE TABLE user_ratings (
+    id SERIAL PRIMARY KEY,
+    rated_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- The user receiving the rating
+    rater_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- The user giving the rating
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5), -- Rating from 1 to 5 stars
+    comment TEXT, -- Optional text comment
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE (rated_user_id, rater_user_id) -- A user can rate another user only once
+);
+
+-- User Reports (For reporting misconduct)
+CREATE TABLE user_reports (
+    id SERIAL PRIMARY KEY,
+    reported_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- The user being reported
+    reporter_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- The user submitting the report
+    reason VARCHAR(255) NOT NULL, -- Short reason (e.g., "Inappropriate behavior", "No-show")
+    details TEXT, -- Detailed description of the report
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'actioned', 'dismissed')), -- Admin review status
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
