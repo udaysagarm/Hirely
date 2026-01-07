@@ -92,12 +92,12 @@ export default function JobList() {
             : job
         ));
       } else {
-        console.error("Failed to record/remove interest:", data.message || "Unknown error");
+        console.error("Failed to perform the action", data.message || "Unknown error");
         setApiError(data.message || `Failed to ${isCurrentlyInterested ? 'remove' : 'record'} interest. Please try again.`);
       }
     } catch (error) {
-      console.error("Network error recording/removing interest:", error);
-      setApiError("Network error. Could not perform interest action.");
+      console.error("Network error performing the action:", error);
+      setApiError("Network error. Please try again.");
     } finally {
       // hideLoading(); // REMOVED GLOBAL LOADING
       setProcessingJobIds(prev => {
