@@ -1,24 +1,27 @@
 /* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* Base styles for the body */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Outfit', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+
   /* Default background for light mode (no specific value, or your light default) */
-  background-color: hsl(223, 90%, 95%); /* Your light theme background */
-  color: hsl(223, 90%, 5%); /* Your light theme text color */
+  background-color: #f8fafc;
+  /* Slate 50 */
+  color: #0f172a;
+  /* Slate 900 */
 }
 
 /* Dark mode preference detected by the browser */
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: hsl(223, 90%, 5%); /* Your dark theme background */
-    color: hsl(223, 90%, 95%); /* Your dark theme text color */
+    background-color: hsl(223, 90%, 5%);
+    /* Your dark theme background */
+    color: hsl(223, 90%, 95%);
+    /* Your dark theme text color */
   }
 }
 
@@ -62,19 +65,35 @@ code {
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1;
   }
+
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+
+  .glass-dark {
+    @apply dark:bg-gray-900/70 dark:backdrop-blur-md dark:border-gray-700/50;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-500;
+  }
 }
 
 /* Base styles for CSS variables */
 :root {
   --hue: 223;
-  --loading-overlay-bg: rgba(255, 255, 255, 0.7); /* Default (light mode) overlay background */
+  --loading-overlay-bg: rgba(255, 255, 255, 0.7);
+  /* Default (light mode) overlay background */
 }
 
 /* Dark mode overrides for CSS variables */
 html.dark {
-  --bg: hsl(var(--hue),90%,5%); /* Primary dark background for app (from App.jsx) */
-  --fg: hsl(var(--hue),90%,95%); /* Primary dark foreground for app */
-  --loading-overlay-bg: rgba(0, 0, 0, 0.7); /* Dark mode overlay background */
+  --bg: hsl(var(--hue), 90%, 5%);
+  /* Primary dark background for app (from App.jsx) */
+  --fg: hsl(var(--hue), 90%, 95%);
+  /* Primary dark foreground for app */
+  --loading-overlay-bg: rgba(0, 0, 0, 0.7);
+  /* Dark mode overlay background */
 }
 
 /* Transition for theme changes if you apply it to background/text colors */
