@@ -78,3 +78,8 @@ Ensure you have the following installed on your machine:
     -   `db/`: Database connection logic.
     -   `routes/`: API route definitions.
 -   `Database_schema.txt`: SQL schema for database creation.
+
+## Deployment
+
+I am currently working on deploying the application to a production environment.
+My plan is to containerize the application and deploy it on azure.
