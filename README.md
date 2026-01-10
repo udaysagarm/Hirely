@@ -5,7 +5,6 @@ Hirely is a gig-matching platform designed to connect job seekers with employers
 ## Features
 
 -   **User Roles**: Support for Job Seekers, Employers, and Admins.
--   **Geolocation**: Location-based job matching using latitude/longitude.
 -   **Job Management**: Post, browse, assign, and track status of jobs.
 -   **Ratings & Reviews**: Reputation system for both workers and employers.
 -   **Real-time Interaction**: Job interests and assignments.
@@ -79,7 +78,21 @@ Ensure you have the following installed on your machine:
     -   `routes/`: API route definitions.
 -   `Database_schema.txt`: SQL schema for database creation.
 
-## Deployment
+## Deployment Roadmap
 
-I am currently working on deploying the application to a production environment.
-My plan is to containerize the application and deploy it on azure.
+We are deploying Hirely to **Microsoft Azure** using Docker containers.
+
+### Phase 1: Containerization (Complete)
+- [x] Create `Dockerfile` for multi-stage build (Frontend + Backend).
+- [x] Test container locally (`docker run`).
+
+### Phase 2: Azure Infrastructure
+- [ ] Create Azure Container Registry (ACR).
+- [ ] Push Docker image to ACR.
+- [ ] Create Azure App Service (Linux B1 Plan).
+- [ ] Configure Environment Variables (DB Connection, JWT Secret) in App Service.
+
+### Phase 3: CI/CD
+- [ ] Enable Continuous Deployment from ACR.
+- [ ] (Optional) Setup GitHub Actions for automated build & push.
+

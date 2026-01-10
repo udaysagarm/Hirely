@@ -1121,11 +1121,21 @@ class AppError extends Error {
     }
 }
 
-// Handle undefined routes
-app.all('*', (req, res, next) => {
-    console.log(`Route not found: ${req.originalUrl}`);
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-});
+// Serve static files from the React app in production
+const path = require('path');
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../dist')));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
+} else {
+    // Handle undefined routes in development
+    app.all('*', (req, res, next) => {
+        console.log(`Route not found: ${req.originalUrl}`);
+        next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+    });
+}
 
 // Global error handler middleware
 app.use((err, req, res, next) => {
