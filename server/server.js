@@ -32,39 +32,10 @@ app.options('*', cors());
 app.use(express.json());
 
 // ===========================================
-// AUTHENTICATION MIDDLEWARE (Modified for optional use)
+// AUTHENTICATION MIDDLEWARE
 // ===========================================
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Get token from "Bearer TOKEN"
+const { authenticateToken, ensureAuthenticated } = require('./middleware/auth');
 
-    // If no token is provided, proceed without setting req.user (for optional authentication)
-    if (token == null) {
-        req.user = null; // Explicitly set to null if no token
-        return next();
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            console.error('JWT verification error:', err.message);
-            req.user = null;
-            return next();
-        }
-        req.user = user.user; // Attach user payload to request (contains id, email, role)
-        next(); // Proceed to the next middleware/route handler
-    });
-}
-
-// Strictly protected middleware (will return error if token is missing/invalid)
-// Use this for routes that absolutely REQUIRE a valid token (e.g., POST /api/jobs, PUT /api/users/:id)
-function ensureAuthenticated(req, res, next) {
-    authenticateToken(req, res, () => {
-        if (!req.user) {
-            return res.status(401).json({ message: 'Authentication required to access this resource.' });
-        }
-        next();
-    });
-}
 
 
 // ===========================================
@@ -75,6 +46,10 @@ app.get('/', (req, res) => {
     console.log("Route hit: GET /");
     res.send('Hirely Backend API is running!');
 });
+
+// ADMIN ROUTES
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
 
 // AUTHENTICATION ROUTES
 
@@ -145,6 +120,10 @@ app.post('/api/login', async (req, res) => {
         const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (user.rows.length === 0) {
             return res.status(400).json({ message: 'Invalid Credentials' });
+        }
+
+        if (user.rows[0].is_suspended) {
+            return res.status(403).json({ message: 'Your account has been suspended. Please contact support.' });
         }
 
         const storedPasswordHash = user.rows[0].password_hash;

@@ -13,6 +13,11 @@ import Settings from "./pages/Settings"; // Import Settings
 import UserPage from "./pages/UserPage";
 import JobDetailsPage from "./pages/JobDetailsPage";
 import DeletedPosts from "./pages/DeletedPosts"; // NEW: Import DeletedPosts
+import AdminLayout from "./layouts/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import AdminJobs from "./pages/admin/AdminJobs";
+import Reports from "./pages/admin/Reports";
 import NavBar from "./components/NavBar";
 import { LoadingProvider } from "./context/LoadingContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -66,6 +71,14 @@ function App() {
               <Route path="/user/:userId" element={<UserPage />} />
               <Route path="/job-details/:jobId" element={<JobDetailsPage />} />
               <Route path="/settings/deleted-posts" element={<DeletedPosts />} /> {/* NEW ROUTE */}
+            </Route>
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="jobs" element={<AdminJobs />} />
+              <Route path="reports" element={<Reports />} />
             </Route>
           </Routes>
         </BrowserRouter>

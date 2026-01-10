@@ -6,7 +6,7 @@ import { Sun, Moon, LogOut } from 'lucide-react'; // Import icons
 export default function NavBar({ theme, setTheme }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth(); // Get logout function
+  const { logout, currentUser } = useAuth(); // Get logout function and currentUser
 
   // Function to toggle theme
   const toggleTheme = () => {
@@ -25,10 +25,10 @@ export default function NavBar({ theme, setTheme }) {
   const navLinkClass = (path, danger = false) => {
     const isActive = location.pathname === path;
     return `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive
-        ? "bg-primary-600 text-white shadow-md shadow-primary-500/30"
-        : danger
-          ? "text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-          : "text-gray-600 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+      ? "bg-primary-600 text-white shadow-md shadow-primary-500/30"
+      : danger
+        ? "text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+        : "text-gray-600 hover:bg-gray-100 hover:text-primary-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
       }`;
   };
 
@@ -77,6 +77,11 @@ export default function NavBar({ theme, setTheme }) {
               <Link to="/settings/deleted-posts" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800/50 transition-colors">
                 Deleted Posts
               </Link>
+              {currentUser && currentUser.role === 'admin' && (
+                <Link to="/admin" className="block px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 font-semibold transition-colors">
+                  Admin Dashboard
+                </Link>
+              )}
               <button
                 onClick={toggleTheme}
                 className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800/50 flex items-center gap-2 transition-colors"
@@ -93,6 +98,6 @@ export default function NavBar({ theme, setTheme }) {
           </div>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 }
