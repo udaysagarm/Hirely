@@ -21,6 +21,7 @@ COPY --from=frontend-build /app/frontend/dist ../dist
 # Set production environment
 ENV NODE_ENV=production
 
-EXPOSE 3001
+ENV PORT=8080
+EXPOSE 8080
 CMD ["node", "server.js"]
 

@@ -5,13 +5,25 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-});
+const poolConfig = process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false // Required for most cloud hosted DBs to work with node-postgres
+        }
+    }
+    : {
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_DATABASE || process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT || 5432,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    };
+
+const pool = new Pool(poolConfig);
 
 // Test database connection on startup
 pool.connect((err, client, release) => {

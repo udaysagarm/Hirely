@@ -10,7 +10,7 @@ const bcrypt = require('bcryptjs'); // For password hashing
 const jwt = require('jsonwebtoken'); // For JSON Web Tokens
 const cors = require('cors'); // For Cross-Origin Resource Sharing
 
-const PORT = process.env.PORT || 3001; // Ensure this is your chosen port (e.g., 3001)
+const PORT = process.env.PORT || 8080; // Default to 8080 for Azure compatibility
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure this is set in your .env file
 
 // ===========================================
@@ -19,7 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET; // Ensure this is set in your .env fi
 // Enable CORS for all requests. This MUST come before your routes.
 // It handles preflight OPTIONS requests automatically.
 app.use(cors({
-    origin: 'http://localhost:5173', // Explicitly allow your frontend's origin
+    origin: process.env.CLIENT_URL || 'http://localhost:5173', // Use env var or default to local
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow common methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
     credentials: true // Allow cookies/auth headers to be sent
@@ -42,10 +42,8 @@ const { authenticateToken, ensureAuthenticated } = require('./middleware/auth');
 // ROUTES
 // ===========================================
 
-app.get('/', (req, res) => {
-    console.log("Route hit: GET /");
-    res.send('Hirely Backend API is running!');
-});
+// Root route removed to allow static files (React app) to be served
+app.get('/health', (req, res) => res.sendStatus(200)); // Dedicated health check route
 
 // ADMIN ROUTES
 const adminRoutes = require('./routes/adminRoutes');
@@ -1154,6 +1152,6 @@ app.use((err, req, res, next) => {
 // ===========================================
 // START SERVER
 // ===========================================
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });
